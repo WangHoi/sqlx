@@ -86,6 +86,7 @@ runtime-async-std-rustls = [
     "_rt-async-std",
 ]
 runtime-tokio-rustls = ["sqlx-rt/runtime-tokio-rustls", "_tls-rustls", "_rt-tokio"]
+runtime-tokio-boring = ["sqlx-rt/runtime-tokio-boring", "tokio-boring", "_tls-boring", "_rt-tokio"]
 
 # for conditional compilation
 _rt-actix = ["tokio-stream"]
@@ -93,6 +94,7 @@ _rt-async-std = []
 _rt-tokio = ["tokio-stream"]
 _tls-native-tls = []
 _tls-rustls = ["rustls", "webpki", "webpki-roots"]
+_tls-boring = ["boring"]
 
 # support offline/decoupled building (enables serialization of `Describe`)
 offline = ["serde", "either/serde"]
@@ -160,3 +162,5 @@ stringprep = "0.1.2"
 bstr = { version = "0.2.14", default-features = false, features = ["std"], optional = true }
 git2 = { version = "0.13.12", default-features = false, optional = true }
 hashlink = "0.7.0"
+boring = { version = "1.1.6", optional = true }
+tokio-boring = { version = "2.1.3", optional = true }

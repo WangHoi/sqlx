@@ -51,6 +51,11 @@ runtime-tokio-rustls = [
     "sqlx-rt/runtime-tokio-rustls",
     "_rt-tokio",
 ]
+runtime-tokio-boring = [
+    "sqlx-core/runtime-tokio-boring",
+    "sqlx-rt/runtime-tokio-boring",
+    "_rt-tokio",
+]
 
 # for conditional compilation
 _rt-actix = []

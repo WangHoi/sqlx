@@ -5,11 +5,12 @@
     feature = "runtime-actix-rustls",
     feature = "runtime-async-std-rustls",
     feature = "runtime-tokio-rustls",
+    feature = "runtime-tokio-boring",
 )))]
 compile_error!(
     "one of the features ['runtime-actix-native-tls', 'runtime-async-std-native-tls', \
      'runtime-tokio-native-tls', 'runtime-actix-rustls', 'runtime-async-std-rustls', \
-     'runtime-tokio-rustls'] must be enabled"
+     'runtime-tokio-rustls', 'runtime-tokio-boring'] must be enabled"
 );
 
 #[cfg(any(
@@ -17,11 +18,13 @@ compile_error!(
     all(feature = "_rt-actix", feature = "_rt-tokio"),
     all(feature = "_rt-async-std", feature = "_rt-tokio"),
     all(feature = "_tls-native-tls", feature = "_tls-rustls"),
+    all(feature = "_tls-native-tls", feature = "_tls-boring"),
+    all(feature = "_tls-boring", feature = "_tls-rustls"),
 ))]
 compile_error!(
     "only one of ['runtime-actix-native-tls', 'runtime-async-std-native-tls', \
      'runtime-tokio-native-tls', 'runtime-actix-rustls', 'runtime-async-std-rustls', \
-     'runtime-tokio-rustls'] can be enabled"
+     'runtime-tokio-rustls', 'runtime-tokio-boring'] can be enabled"
 );
 
 #[cfg(all(feature = "_tls-native-tls"))]
@@ -83,16 +86,29 @@ mod tokio_runtime {
 #[cfg(all(
     feature = "_tls-native-tls",
     any(feature = "_rt-tokio", feature = "_rt-actix"),
-    not(any(feature = "_tls-rustls", feature = "_rt-async-std")),
+    not(any(feature = "_tls-rustls", feature = "_tls-boring", feature = "_rt-async-std")),
 ))]
 pub use tokio_native_tls::{TlsConnector, TlsStream};
 
 #[cfg(all(
     feature = "_tls-rustls",
     any(feature = "_rt-tokio", feature = "_rt-actix"),
-    not(any(feature = "_tls-native-tls", feature = "_rt-async-std")),
+    not(any(feature = "_tls-native-tls", feature = "_tls-boring", feature = "_rt-async-std")),
 ))]
 pub use tokio_rustls::{client::TlsStream, TlsConnector};
+
+#[cfg(all(
+    feature = "_tls-boring",
+    any(feature = "_rt-tokio", feature = "_rt-actix"),
+    not(any(feature = "_tls-native-tls", feature = "_tls-rustls", feature = "_rt-async-std")),
+))]
+mod boring;
+#[cfg(all(
+    feature = "_tls-boring",
+    any(feature = "_rt-tokio", feature = "_rt-actix"),
+    not(any(feature = "_tls-native-tls", feature = "_tls-rustls", feature = "_rt-async-std")),
+))]
+pub use crate::boring::{TlsConnector, TlsStream, TlsError};
 
 //
 // tokio

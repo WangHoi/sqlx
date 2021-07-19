@@ -259,6 +259,31 @@ impl From<webpki::InvalidDNSNameError> for Error {
     }
 }
 
+#[cfg(feature = "_tls-boring")]
+impl From<boring::error::Error> for Error {
+    #[inline]
+    fn from(error: boring::error::Error) -> Self {
+        Error::Tls(Box::new(error))
+    }
+}
+
+#[cfg(feature = "_tls-boring")]
+impl From<boring::error::ErrorStack> for Error {
+    #[inline]
+    fn from(error: boring::error::ErrorStack) -> Self {
+        Error::Tls(Box::new(error))
+    }
+}
+
+#[cfg(feature = "_tls-boring")]
+impl From<sqlx_rt::TlsError> for Error {
+    #[inline]
+    fn from(error: sqlx_rt::TlsError) -> Self {
+        Error::Tls(Box::new(error))
+    }
+}
+
+
 // Format an error message as a `Protocol` error
 macro_rules! err_protocol {
     ($expr:expr) => {

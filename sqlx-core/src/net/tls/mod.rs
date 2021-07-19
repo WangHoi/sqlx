@@ -56,6 +56,9 @@ impl std::fmt::Display for CertificateInput {
 #[cfg(feature = "_tls-rustls")]
 mod rustls;
 
+#[cfg(feature = "_tls-boring")]
+mod boring;
+
 pub enum MaybeTlsStream<S>
 where
     S: AsyncRead + AsyncWrite + Unpin,
@@ -146,6 +149,9 @@ async fn configure_tls_connector(
 #[cfg(feature = "_tls-rustls")]
 use self::rustls::configure_tls_connector;
 
+#[cfg(feature = "_tls-boring")]
+use self::boring::configure_tls_connector;
+
 impl<S> AsyncRead for MaybeTlsStream<S>
 where
     S: Unpin + AsyncWrite + AsyncRead,
@@ -230,6 +236,9 @@ where
             #[cfg(all(not(feature = "_rt-async-std"), feature = "_tls-native-tls"))]
             MaybeTlsStream::Tls(s) => s.get_ref().get_ref().get_ref(),
 
+            #[cfg(all(feature = "_rt-tokio", feature = "_tls-boring"))]
+            MaybeTlsStream::Tls(s) => s.get_ref(),
+
             MaybeTlsStream::Upgrading => {
                 panic!("{}", io::Error::from(io::ErrorKind::ConnectionAborted))
             }
@@ -253,6 +262,9 @@ where
 
             #[cfg(all(not(feature = "_rt-async-std"), feature = "_tls-native-tls"))]
             MaybeTlsStream::Tls(s) => s.get_mut().get_mut().get_mut(),
+
+            #[cfg(all(feature = "_rt-tokio", feature = "_tls-boring"))]
+            MaybeTlsStream::Tls(s) => s.get_mut(),
 
             MaybeTlsStream::Upgrading => {
                 panic!("{}", io::Error::from(io::ErrorKind::ConnectionAborted))
