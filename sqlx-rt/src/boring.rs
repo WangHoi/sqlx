@@ -1,7 +1,6 @@
 pub use tokio_boring::SslStream as TlsStream;
-use tokio_boring::{self, HandshakeError};
+use tokio_boring;
 use tokio::io::{AsyncRead, AsyncWrite};
-use std::error::Error as StdError;
 
 pub struct TlsConnector {
     config: boring::ssl::ConnectConfiguration,
@@ -19,24 +18,23 @@ impl From<boring::ssl::ConnectConfiguration> for TlsConnector {
 pub struct TlsError {
     inner: String,
 }
-impl std::error::Error for TlsError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        None
-    }
-}
-impl std::fmt::Display for TlsError {
+impl std::error::Error for TlsError {}
+impl std::fmt::Display for TlsError
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.inner)
+        std::fmt::Display::fmt(&self.inner, f)
     }
 }
 
 impl TlsConnector {
     pub async fn connect<S>(self, domain: &str, stream: S) -> Result<TlsStream<S>, TlsError>
     where 
-        S: AsyncRead + AsyncWrite + Unpin,
+        S: AsyncRead + AsyncWrite + Unpin + std::fmt::Debug,
     {
-        tokio_boring::connect(self.config, domain, stream).await.map_err(|e| TlsError {
-            inner: String::from("handshake error"),
+        tokio_boring::connect(self.config, domain, stream).await.map_err(|e| {
+            TlsError {
+                inner: e.to_string(),
+            }
         })
     }
 }

@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-
+use std::fmt::Debug;
 use std::io;
 use std::ops::{Deref, DerefMut};
 use std::path::PathBuf;
@@ -61,7 +61,7 @@ mod boring;
 
 pub enum MaybeTlsStream<S>
 where
-    S: AsyncRead + AsyncWrite + Unpin,
+    S: AsyncRead + AsyncWrite + Unpin + Debug,
 {
     Raw(S),
     Tls(TlsStream<S>),
@@ -70,7 +70,7 @@ where
 
 impl<S> MaybeTlsStream<S>
 where
-    S: AsyncRead + AsyncWrite + Unpin,
+    S: AsyncRead + AsyncWrite + Unpin + Debug,
 {
     #[inline]
     pub fn is_tls(&self) -> bool {
@@ -154,7 +154,7 @@ use self::boring::configure_tls_connector;
 
 impl<S> AsyncRead for MaybeTlsStream<S>
 where
-    S: Unpin + AsyncWrite + AsyncRead,
+    S: Unpin + AsyncWrite + AsyncRead + std::fmt::Debug,
 {
     fn poll_read(
         mut self: Pin<&mut Self>,
@@ -172,7 +172,7 @@ where
 
 impl<S> AsyncWrite for MaybeTlsStream<S>
 where
-    S: Unpin + AsyncWrite + AsyncRead,
+    S: Unpin + AsyncWrite + AsyncRead + std::fmt::Debug,
 {
     fn poll_write(
         mut self: Pin<&mut Self>,
@@ -219,7 +219,7 @@ where
 
 impl<S> Deref for MaybeTlsStream<S>
 where
-    S: Unpin + AsyncWrite + AsyncRead,
+    S: Unpin + AsyncWrite + AsyncRead + std::fmt::Debug,
 {
     type Target = S;
 
@@ -248,7 +248,7 @@ where
 
 impl<S> DerefMut for MaybeTlsStream<S>
 where
-    S: Unpin + AsyncWrite + AsyncRead,
+    S: Unpin + AsyncWrite + AsyncRead + std::fmt::Debug,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         match self {
